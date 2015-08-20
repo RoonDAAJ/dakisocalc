@@ -1,0 +1,41 @@
+<div class="overlay idle"></div>
+
+	<div class="calc-result" ng-class="{'show-result':show_result}">
+		<div class="col1-4 col1"><span class="rm fa-lg">R<sub>m</sub></span> {{calc_result.Rm | number:2}}</div>
+		<div class="col1-4 col2"><span class="lambda fa-lg">&lambda;</span> {{calc_result.lambda | number:3}}</div>
+		<div class="col1-4 col3"><span class="avg-height fa-lg"><i class="fa fa-arrows-v"></i><sub>gem.</sub></span> {{calc_result.height_avg | number:0}}</div>
+		<!-- <a href="" ng-click="show_result=false" class="close-btn"><i class="fa fa-chevron-up"></i></a> -->
+		<a href="" ng-click="fire('show_send')" class="send-btn"><i class="fa fa-lg fa-envelope-o"></i></a>
+		
+	</div>
+
+
+<div class="rooftop">
+	
+	<div class="layers">
+		<img src="img/rooftop-perspective-lines.jpg" border="0" class="layer photo" height="100%">
+		<img src="img/isocolors-4.png" border="0" class="layer insulation" height="100%">
+		<img src="img/rooftop-waterflow-white.png" border="0" class="layer waterflow" height="100%">
+		<div class="points">
+			<a href="" class="point a" ng-class="{entered:data['A'].height}" ng-click="fire('show_form', 'A')"><div class="height">{{calculator.settings['A'].height}}</div><div class="title">A<sub>1</sub></div></a>
+			<a href="" class="point b"  ng-class="{entered:data['B'].height}" ng-click="fire('show_form', 'B')"><div class="height">{{calculator.settings['B'].height}}</div><div class="title">B</div></a>
+			<a href="" class="point aa" ng-class="{entered:data['AA'].height}" ng-click="fire('show_form', 'AA')"><div class="height">{{calculator.settings['AA'].height}}</div><div class="title">A<sub>2</sub></div></a>
+			<a href="" class="point c" ng-class="{entered:data['C'].height}" ng-click="fire('show_form', 'C')"><div class="height">{{calculator.settings['C'].height}}</div><div class="title">C</div></a>
+			<div class="clr"></div>
+		</div>
+	</div>
+
+</div>
+
+<div class="settings-dialog">
+	<div ng-include="'snippets/settings.html'" class="settings-wrap"></div>
+</div>
+
+<div class="entry-form">
+	<div ng-include="entry_template" class="entry-form-wrap"></div>
+</div>
+
+<div class="send-form">
+	<div ng-include="'snippets/send.html'" class="send-form-wrap"></div>
+</div>
+

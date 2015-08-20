@@ -1,0 +1,48 @@
+<form name="settingsform" novalidate class="settings" ng-class="{showerrors:showerrors}" ng-if="mode=='settings'" ng-init="initsettingsform(this)">
+	
+	<label>Type Isolatie Inlage</label>
+	<div dropdown-select="materials"
+            dropdown-model="material"
+            dropdown-item-label="name" 
+            dropdown-onchange="change_material(selected)"
+            class="material-dropdown">
+    </div>
+    <a ng-click="restore_material_values()" class="btn-material-refresh"><i class="fa fa-refresh fa-lg"></i></a>
+
+    <!-- <select name="material" ng-model="$parent.$parent.material" ng-options="o.name for o in materials"></select> 
+	<a ng-click="restore_material_values()" class="btn-material-refresh"><i class="fa fa-refresh"></i></a>
+	-->
+		
+	<label>Afmetingen Isolatie (L x B in mm)</label>
+	<input name="dimension_l" type="number" class="size-half" ng-model="$parent.$parent.dimension_l" placeholder="Lengte in mm..." required ng-class="{highlight:refreshing}"/>
+	<input name="dimension_w" type="number" class="size-half right-aligned" ng-model="$parent.$parent.dimension_w" placeholder="Breedte in mm..." required ng-class="{highlight:refreshing}"/>
+	<div class="form-field-errors" ng-show="(!settingsform.dimension_l.$pristine || !settingsform.dimension_w.$pristine || showerrors) && (settingsform.dimension_l.$invalid || settingsform.dimension_w.$invalid)">
+		Afmeting Isolatie is verplicht en moet een getal zijn
+	</div>
+	
+	<label>Lambda Isolatie</label>
+	<input name="lambda" type="number" step="0.001" ng-model="$parent.$parent.lambda" placeholder="Lambda van isolatie..." required ng-class="{highlight:refreshing}"/>
+	<div class="form-field-errors" ng-show="(!settingsform.lambda.$pristine || showerrors) && (settingsform.lambda.$invalid)">
+		Lambda Isolatie is verplicht en moet een getal zijn
+	</div>
+		
+	<label>Gem. Afmeting Naden (mm)</label>
+	<input name="width_seam" type="number" ng-model="$parent.$parent.width_seam" placeholder="Gem. afmeting naden in mm..." />
+	<div class="form-field-errors" ng-show="(!settingsform.width_seam.$pristine || showerrors) && (settingsform.width_seam.$invalid)">
+		Gem. Afmeting Naden is verplicht en moet een getal zijn
+	</div>
+		
+	<label>Dikte Betopor<sup>&reg;</sup> (mm)</label>
+	<input name="betopor_height" type="number" ng-model="$parent.$parent.betopor_height" placeholder="Dikte Betopor&reg; in mm..." />
+	<div class="form-field-errors" ng-show="(!settingsform.betopor_height.$pristine || showerrors) && (settingsform.betopor_height.$invalid)">
+		Dikte Betopor<sup>&reg;</sup> is verplicht en moet een getal zijn
+	</div>
+	
+	<label>Lambda Betopor<sup>&reg;</sup></label>
+	<input name="betopor_lambda" type="number" step="0.01" ng-model="$parent.$parent.betopor_lambda" placeholder="Lambda Betopor&reg;..."/>
+	<div class="form-field-errors" ng-show="(!settingsform.betopor_lambda.$pristine || showerrors) && (settingsform.betopor_lambda.$invalid)">
+		Lambda Betopor<sup>&reg;</sup> is verplicht en moet een getal zijn
+	</div>
+
+	<input type="submit" value="Go" ng-click="fire('confirm_settings')" style="visibility:hidden"></input>
+</form>

@@ -1,0 +1,29 @@
+<div class="toolbar" ng-class="{scrolling:scrolling && mode=='settings'}">
+	<a class="logo" ng-click="fire('logo_action')"><i class="fa fa-bars menu"></i><i class="fa fa-angle-left back"></i></a>
+	<h1 ng-show="title" ng-bind-html="title"></h1>
+	<div class="actions home">
+		<a href="" ng-click="fire('show_layers')" class="layers">
+			<li class="fa fa-eye fa-lg"></li>
+		</a>
+		<a href="" ng-click="fire('show_settings')" class="settings">
+			<li class="fa fa-gear fa-lg"></li>
+		</a>
+	</div>
+	<div class="actions form">
+		<a href="" class="confirm" ng-click="fire('confirm_form')">
+			<li class="fa fa-check fa-lg"></li>
+		</a>
+	</div>
+	<div class="actions settings">
+		<a href="" class="confirm" ng-click="fire('confirm_settings')">
+			<li class="fa fa-check fa-lg"></li>
+		</a>
+	</div>
+
+	<div class="actions send">
+		<a href="" class="confirm" ng-click="fire('send_mail');">
+			<li class="fa fa-mail-forward fa-lg"></li>
+		</a>
+	</div>
+
+</div>

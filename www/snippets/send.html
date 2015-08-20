@@ -1,0 +1,53 @@
+<article class="intro">
+	<p>	
+		Vul het onderstaande formulier in en ontvang de details van de berekening binnen enkele minuten per e-mail. 
+		Houdt er rekening mee dat u voor het versturen van de berekening internet nodig heeft.  
+	</p>
+	<hr class="fa fa-chevron-down medium"/>
+</article>
+
+<form name="sendform" novalidate class="send" ng-class="{showerrors:showerrors}" ng-if="mode=='send'" ng-init="initsendform(this)">
+
+	<h2>Project Gegevens</h2>
+	<p>Indien de berekening gaat over een bestaand project vul dan onderstaande gegevens in zodat wij een goed beeld hebben van de te plannen werkzaamheden.<br/><br/></p>
+	<label>Projectnaam:</label>
+	<input name="project_name" type="text" ng-model="send.project_name" placeholder="Vul de naam van het project in..." required />
+	<label>Adres:</label>
+	<input name="project_address" type="text" ng-model="send.project_address" placeholder="Vul straat + huisnummer in van project locatie..." />
+	<label>Postcode:</label>
+	<input name="project_zipcode" type="text" ng-model="send.project_zipcode" placeholder="Vul postcode in van project locatie..." />
+	<label>Plaats:</label>
+	<input name="project_city" type="text" ng-model="send.project_city" placeholder="Vul plaats in van project locatie..." />
+	<label>Oppervlakte (in m<sup>2</sup>):</label>
+	<input name="project_surface" type="number" ng-model="send.project_surface" placeholder="Vul totale oppervlakte in van dak..." />
+	<label>Hoogte (in meters):</label>
+	<input name="project_height" type="number" ng-model="send.project_height" placeholder="Vul hoogte in van project locatie..." />
+
+	<h2>Contact Gegevens</h2>
+
+	<label>Naam:</label>
+	<input name="name" type="text" ng-model="send.name" placeholder="Vul uw naam in..." required />
+	<div class="form-field-errors" ng-show="(!sendform.name.$pristine || showerrors) && sendform.name.$invalid">
+		Uw naam is verplicht om in te vullen
+	</div>
+	<label>Bedrijfsnaam:</label>
+	<input name="company" type="text" ng-model="send.company" placeholder="Vul uw bedrijfsnaam in..." />
+	<label>E-mail:</label>
+	<input name="email" type="email" ng-model="send.email" placeholder="Vul uw e-mail in..." required/>
+	<div class="form-field-errors" ng-show="(!sendform.email.$pristine || showerrors) && sendform.email.$invalid">
+		Uw e-mail adres is verplicht en moet geldig zijn
+	</div>
+	<label>Tel:</label>
+	<input name="phone" type="text" ng-model="send.phone" placeholder="Vul uw telefoonnummer in..." />
+
+	<label>Adres:</label>
+	<input name="address" type="text" ng-model="send.address" placeholder="Vul uw straat + huisnummer in..." />
+	<label>Postcode:</label>
+	<input name="zipcode" type="text" ng-model="send.zipcode" placeholder="Vul uw postcode in..." />
+	<label>Plaats:</label>
+	<input name="city" type="text" ng-model="send.city" placeholder="Vul uw woonplaats of vestigingsplaats in..." />
+	<label>Opmerking:</label>
+	<textarea name="remark" ng-model="send.remark" rows="3" placeholder="Laat een opmerking achter..." ></textarea>
+	
+	<input name="sendbtn" type="submit" value="Go" ng-click="fire('send_mail')" style="visibility:hidden" />
+</form>

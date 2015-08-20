@@ -1,0 +1,13 @@
+<article class="intro">
+	<p>	
+		Vul hieronder de dikte C-eps systeem in op de hoge rug, recht tegenover de hemelwaterafvoer (hwa).
+	</p>
+	<hr class="fa fa-chevron-down medium"/>
+</article>
+
+<form ng-submit="fire('confirm_form')" ng-if="mode=='form'" ng-init="initentryform(this);">
+	<label>Dikte isolatie + Betopor<sup>&reg;</sup> bij punt A<sub>2</sub>:</label>
+	<input name="height_AA" type="number" ng-model="data['AA'].height" min="0" max="999" placeholder="Dikte in mm..." />
+
+	<input type="submit" value="Go" ng-click="fire('confirm_form')" style="visibility:hidden"></input>
+</form>

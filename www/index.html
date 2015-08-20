@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="nl">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <!-- <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />-->
+        <meta name="viewport" content="height=device-height, initial-scale=1.0, maximum-scale=1.0, target-densityDpi=device-dpi" />
+        
+        <link rel="stylesheet" type="text/css" href="css/reset.css" />       
+        <link rel="stylesheet" type="text/css" href="lib/font-awesome/css/font-awesome.css" /> 
+        <link rel="stylesheet" type="text/css" href="css/fonts.css" /> 
+        <link rel="stylesheet" type="text/css" href="lib/angular-dropdowns/css/dropdowns.css" /> 
+        <link rel="stylesheet" type="text/css" href="css/app.css" />       
+        <title>Dak Isolatie Calculator</title>
+    </head>
+    
+    <body class="{{mode}}-visible" ng-class="{'layer-insulation-on':layers}" onload="/*document.body.style.height = screen.availHeight + 'px';*/">
+    
+    	<div class="app" ng-controller="MainCtrl">
+			
+			<cit-toolbar active_mode="home"></cit-toolbar>
+			
+			<div id="menuview" class="menuview">
+				<ul>
+					<li class="menu-item">
+						<a href="" ng-click="fire('reset_calculator')">
+							<strong>Nieuwe Berekening</strong><br />
+							<span class="tip">Kies deze optie wanneer u met een nieuwe berekening wilt starten</span>
+						</a>
+					</li>
+					<li class="menu-item">
+						<a href="" ng-click="fire('start_intro')">
+							<strong>Introductie</strong><br />
+							<span class="tip">Bekijk enkele tips over het gebruik van deze app</span>
+						</a>
+					</li>
+					<li class="menu-item">
+						<a href="" ng-click="fire('show_version')">
+							<strong>Versie</strong><br />
+							<span class="tip">Bekijk de versie van deze app</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+	
+			<div class="mainview" ng-cloak ng-view  resizable ng-style="{width:windowWidth,height:windowHeight}"></div>
+			
+			<div class="dialog-wrap" ng-cloak ng-controller="DialogCtrl" ng-class="{show:showdlg}">
+				<div ng-include="'snippets/introduction.html'"></div>
+			</div>
+			
+			<div class="dialog-wrap msgdlg" ng-cloak ng-controller="MsgCtrl" ng-class="{show:showmsg}">
+				<div class="dialog" ng-class="msg.type">
+					<a href="" ng-click="fire('close_msg')" class="close-btn"><i class="fa fa-times"></i></a>
+					<div ng-if="showmsg" ng-include="msg.template"></div>
+					<div ng-if="msg.buttons" class="buttons count-{{msg.buttons.length}}">
+						<a ng-repeat="btn in msg.buttons" ng-class="btn.css_class" href="" ng-click="fire(btn.action)">{{btn.label}}</a>
+					</div>
+				</div>
+			</div>
+						
+		</div>
+
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="lib/mandrill/mandrill.min.js"></script>
+
+        <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+        <script type="text/javascript" src="lib/angular/angular-touch.min.js"></script>
+        <script type="text/javascript" src="lib/angular/angular-route.min.js"></script>
+        <script type="text/javascript" src="lib/angular/angular-sanitize.min.js"></script>
+        <script type="text/javascript" src="lib/angular-cookies/angular-cookies.min.js"></script>
+        <script type="text/javascript" src="lib/angularLocalStorage/src/angularLocalStorage.js"></script>
+        <script type="text/javascript" src="lib/angular-dropdowns/angular-dropdowns.js"></script>
+         
+ 		<script type="text/javascript" src="js/dakisocalc.js"></script>
+ 		<script type="text/javascript" src="js/controllers/main.js"></script>
+ 		<script type="text/javascript" src="js/controllers/home.js"></script>
+ 		<script type="text/javascript" src="js/controllers/dialog.js"></script>
+		<script type="text/javascript" src="js/controllers/msg.js"></script>
+ 		<script type="text/javascript" src="js/directives/toolbar.js"></script>
+ 		<script type="text/javascript" src="js/directives/resizable.js"></script>
+		<script type="text/javascript" src="js/services/calculator.js"></script>
+        <script type="text/javascript" src="js/filters/nl2br.js"></script>
+        
+        <script type="text/javascript">
+            	app.initialize();
+        </script>
+        
+    </body>
+</html>

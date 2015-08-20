@@ -1,0 +1,29 @@
+<div class="dialog">
+	<a href="" ng-click="fire('close_dlg')" class="close-btn"><i class="fa fa-times"></i></a>
+	<ul class="panels panel-{{current_step}}-active">
+		<li ng-repeat="step in steps" class="panel step-{{$index+1}}" ng-class="{first:$first, current: current_step==$index+1}">
+			<div class="title-bar">
+				<h2>{{step.title}}</h2>
+				<span class="steps-indicator">Stap {{$index+1}} / 4</span>
+			</div>
+			<div class="illustration"></div>
+			<div class="explanation">
+				<p ng-bind-html="step.description" ></p>
+				
+				<div ng-if="$last" class="show-on-startup">
+					<input id="show-on-startup-chkbox" type="checkbox" ng-model="$parent.$parent.$parent.show_on_startup">
+					<label for="show-on-startup-chkbox" class="inline">&nbsp;Automatisch tonen na opstarten</label>
+				</div>
+			</div>
+		</li>	
+	</ul>
+	
+	<div class="buttons">
+		<a class="button left" href="" ng-click="fire('go_prev')" ng-show="(current_step!=1)">Vorige</a>
+		<a class="button left" href="" ng-click="fire('close_dlg')" ng-show="(current_step==1)">Sluiten</a>
+		
+		<a class="button right" href="" ng-click="fire('go_next')" ng-show="(current_step!=steps.length)">Volgende</a>
+		<a class="button right" href="" ng-click="fire('close_dlg')" ng-show="(current_step==steps.length)">Beginnen!</a>
+	</div>
+
+</div>

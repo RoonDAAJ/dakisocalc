@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Code Your Own | Mandrill</title>
+    
+		<meta charset="utf-8">
+        <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+		<!-- HTML5 shim, for IE6-8 support of HTML elements -->
+		    <!--[if lt IE 9]>
+		      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		    <![endif]-->
+		<link rel="stylesheet" href="/css/common.css" type="text/css" media="screen" charset="utf-8">
+        <link rel="stylesheet" href="/css/mandrill.css" type="text/css" media="screen" charset="utf-8">
+        <!--[if lte IE 9]>
+              <link rel="stylesheet" href="/css/ie8.css" type="text/css" media="screen" charset="utf-8">
+            <![endif]-->
+        <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="/js/jquery-cookie.js"></script>
+        <script type="text/javascript" src="/js/mdcommon.js"></script>
+        <script type="text/javascript" src="/js/jquery-ui-1.10.3.custom.min.js"></script>
+		<script type="text/javascript">
+                        var _sudo_time = 1398696248;
+              			$(function(){
+                function logSupportEvent(event_type, extra_data) {
+                    if (typeof extra_data != 'object') var extra_data = {};
+                    $.post('/support/log-event', {
+                        current_page: "\/templates\/code?id=c-eps-calculator-isolatieberekening",
+                        event_type: event_type,
+                        extra_data: extra_data
+                    });
+                }
+
+                $('#flash').prependTo($('#main-narrow'));
+                $('#sudo-dialog').dialog({
+                    autoOpen: false,
+                    width: 430,
+                    modal: true,
+                    resizable: false
+                });
+                $('#support-dialog').dialog({
+                    autoOpen: false,
+                    width: 680,
+                    modal: true,
+                    resizable: false,
+                    draggable: false,
+                    position: ['center',50],
+                    open: function(event, ui) {
+                        logSupportEvent('open_dialog');
+                    },
+                    close: function(event, ui) {
+                        logSupportEvent('close_dialog');
+                    }
+                });
+
+                function clearValidation(form) {
+                    $(form + ' input, ' + form + ' textarea').removeClass('invalid');
+                    $(form + ' .invalid-error').remove();
+                }
+
+                function showValidation(form, details) {
+                    clearValidation(form);
+                    for (var name in details) {
+                        var elem = $('#support-form [name=' + name + ']');
+                        elem.addClass('invalid');
+                        var error_display = $('<span class="invalid-error"></span>');
+                        error_display.text(details[name]);
+                        elem.parent().append(error_display);
+                    }
+                }
+
+                $('#support').click(function() {
+                    $('#ticket-submit').attr('disabled', false);
+                    $('#ticket-search-results').empty();
+                    $('#support-dialog').data('enable-search', true);
+                    $('#support-dialog').dialog('open');
+                    $('#ticket-search-wrapper .show-ticket-form-wrapper').hide();
+                    $('#ticket-search-wrapper').show();
+                    $('#ticket-details').hide();
+                    $('#help-cat1').hide();
+                    $('#help-cat2').hide();
+                    $('#help-cat3').hide();
+                    return false;
+                });
+
+                $('#support-billing').click(function() {
+                    $('#support-dialog').data('enable-search', false);
+                    $('#support-dialog').dialog('open');
+                    $('#ticket-search-wrapper .show-ticket-form-wrapper').show();
+                    $('#ticket-search-wrapper').hide();
+                    $('#ticket-details').show();
+                    $('input#ticket-subject').val('Sending was paused due to billing updates');
+                    return false;
+                });
+
+                $('#ticket-submit').click(function() {
+                    var params = {};
+                    $('#ticket-submit').val('Submitting');
+                    $('#ticket-submit').attr('disabled', true);
+
+                    $('#support-form input, #support-form textarea').each(function() {
+                        params[this.name] = this.value;
+                    });
+
+                    $.post('/support/new-ticket', params, function(response) {
+                        if (response.status == 'error') {
+                            $('#ticket-submit').attr('disabled', false);
+                            showValidation('#support-form', response.details);
+                        } else {
+                            logSupportEvent('create_ticket', {ticket: response.ticket});
+                            $('#support-dialog').dialog('close');
+                            $(window).scrollTop(0);
+                            md.toast("Your ticket has been submitted. We'll be in touch soon.");
+                        }
+                    });
+                    return false;
+                });
+
+                $('#support-search').click(function() {
+                    var query = $('#support-query').val();
+                    $('#ticket-searching').show();
+                    $('#ticket-search-wrapper .show-ticket-form-wrapper').hide();
+                    $('#ticket-search-results').empty().hide().load('/support/search-kb', {q: query}, function() {
+                        $('#ticket-search-results').slideDown('250');
+                        $('#ticket-searching').hide();
+                        $('#ticket-search-wrapper .show-ticket-form-wrapper').show();
+                        var results = [];
+                        $(this).find('h4 a').each(function(index, ele) {
+                            $(ele).addClass('track-support-click').data('click-type', 'result').data('query', query);
+                            results.push({
+                                url: $(ele).attr('href'),
+                                title: $(ele).text()
+                            });
+                        });
+                        logSupportEvent('search', {
+                            query: query,
+                            results: results
+                        });
+                    });
+                    return false;
+                });
+
+                function showHelpCat(id) {
+                    $('#ticket-search-wrapper').slideUp('250');
+                    $('.help-cat-active').removeClass('help-cat-active');
+                    $('#' + id).addClass('help-cat-active').slideDown('250');
+                }
+
+                $('#helplink-cat1').click(function(e) {
+                    e.preventDefault();
+                    showHelpCat('help-cat1');
+                });
+
+                $('#helplink-cat2').click(function(e) {
+                    e.preventDefault();
+                    showHelpCat('help-cat2');
+                    $('#support-dialog-reputation').empty().load('/support/reputation');
+                });
+
+                $('#helplink-cat3').click(function(e) {
+                    e.preventDefault();
+                    showHelpCat('help-cat3');
+                });
+
+                $('.help-cat-back').click(function() {
+                    $('.help-cat-active').removeClass('help-cat-active').slideUp('250');
+                    $('#ticket-search-wrapper').slideDown('250');
+                    return false;
+                });
+
+                $('#ticket-search-wrapper .show-ticket-form').click(function() {
+                    $('#ticket-subject').val($('#support-query').val());
+                    $('#ticket-search-wrapper').slideUp('250');
+                    $('#ticket-details').slideDown('250');
+                    return false;
+                });
+
+                $('.show-ticket-form:not(#ticket-search-wrapper .show-ticket-form)').click(function() {
+                    $('#ticket-subject').val('');
+                    $('.help-cat-active').slideUp('250');
+                    $('#ticket-details').slideDown('250');
+                    return false;
+                });
+
+                $('#hide-ticket-form').click(function() {
+                    if ($('#support-dialog').data('enable-search')) {
+                        $('#ticket-details').slideUp('250');
+                        $('#ticket-search-wrapper').slideDown('250');
+                    } else {
+                        $('#support-dialog').dialog('close');
+                    }
+                    return false;
+                });
+
+                $('#support-dialog').on('click', 'a.track-support-click', function() {
+                    var click_type = $(this).data('click-type');
+                    var query = $(this).data('query');
+                    if (typeof query != 'string') query = null;
+                    logSupportEvent(click_type + '_click', {
+                        url: $(this).attr('href'),
+                        title: $(this).text(),
+                        query: query
+                    });
+                });
+  			});  
+        </script>
+
+        <script type="text/javascript">
+
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-329148-80']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+
+        </script>
+    
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css">
+    <script type="text/javascript" src="/js/tag-it.min.js"></script>
+    <script type="text/javascript" src="/js/codemirror/lib/codemirror.js"></script>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/neat.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/elegant.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/erlang-dark.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/night.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/monokai.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/mandrill.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/cobalt.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/eclipse.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/rubyblue.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/lesser-dark.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/xq-dark.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/xq-light.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/ambiance.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/blackboard.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/vibrant-ink.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/solarized.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/twilight.css">
+    <link rel="stylesheet" href="/js/codemirror/theme/midnight.css">
+    <script type="text/javascript" src="/js/codemirror/mode/xml/xml.js"></script>
+    <script type="text/javascript" src="/js/codemirror/mode/css/css.js"></script>
+    <script type="text/javascript" src="/js/codemirror/mode/javascript/javascript.js"></script>
+    <script type="text/javascript" src="/js/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+    <script type="text/javascript">
+
+        function currentTags() {
+            var tags = [];
+            $('input[name="tags[]"]').each(function(i, e) {
+                var v = $(e).val();
+                if(v) tags.push(v);
+            });
+            return tags;
+        }
+
+        function saveDraft(then, arg) {
+            editor.save();
+            var tpl_data = {
+                html: $('#html').val(),
+                text: $('#text').val(),
+                subject: $('#subject').val(),
+                from_email: $('#from_email').val(),
+                from_name: $('#from_name').val()
+            };
+
+            var tags = currentTags();
+
+            $.post('/templates/save-code', {id: $('#id').val(), name: $('#template-name').val(), tags: tags, data: tpl_data}, function(data) {
+                if(data.status == 'success') {
+                    md.toast('Draft saved');
+                    if(then) then(arg);
+                } else {
+                    md.toast('Error saving draft: ' + data.msg, 'error');
+                }
+            }, 'json');
+        }
+
+        function sendTest() {
+            $('#send-test-form').dialog('open');
+        }
+
+        function sendTestPost() {
+            //Save the draft before posting the test
+            saveDraft(function() {
+                $('#send-test-form form')[0].submit();
+            });
+        }
+
+        function sendSpamTest() {
+            saveDraft(function() {
+                $('#spam-filter-form').dialog('open');
+            });
+        }
+
+        function showSpamUpgrade() {
+            $('#spam-filter-upgrade').dialog('open');
+        }
+
+        function openSpamReport(report) {
+            $.get('/templates/spam-report', {id: "c-eps-calculator-isolatieberekening", report: report}, function(data) {
+                $('#spam-filter-report').html(data);
+                $('#spam-filter-report').dialog('open');
+            });
+        }
+
+        function sendScreenshotTest() {
+            saveDraft(function() {
+                $('#screenshot-test-form').dialog('open');
+            });
+        }
+
+        function showScreenshotUpgrade() {
+            $('#screenshot-test-upgrade').dialog('open');
+        }
+
+        $(document).ready(function() {
+            function isFullScreen(cm) {
+                return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
+            }
+            function winHeight() {
+                return window.innerHeight - 70 || (document.documentElement || document.body).clientHeight;
+            }
+            function setFullScreen(cm, full) {
+                var wrap = cm.getWrapperElement();
+                if (full) {
+                    wrap.className += " CodeMirror-fullscreen";
+                    wrap.style.height = winHeight() + "px";
+                    document.documentElement.style.overflow = "hidden";
+                    $('#content').addClass('fullscreen-mode live-preview');
+                    $('#enter-fullscreen').hide();
+                    $('#quit-fullscreen').show();
+                    $('#live-preview').show();
+                    $('#enter-live-preview').hide();
+                    $('#quit-live-preview').show();
+                    document.getElementById('live-preview').style.height = winHeight() + "px";
+                } else {
+                    wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
+                    wrap.style.height = "";
+                    document.documentElement.style.overflow = "";
+                    $('#content').removeClass('fullscreen-mode live-preview');
+                    $('#enter-fullscreen').show();
+                    $('#quit-fullscreen').hide();
+                    $('#enter-live-preview').show();
+                    $('#quit-live-preview').hide();
+                    $('#live-preview').hide();
+                }
+                cm.refresh();
+            }
+            CodeMirror.on(window, "resize", function() {
+                var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
+                if (!showing) return;
+                showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
+                document.getElementById('live-preview').style.height = winHeight() + "px";
+            });
+            editor = CodeMirror.fromTextArea(document.getElementById('html'), {mode: 'text/html', indentUnit: 4, lineNumbers: true,
+                lineWrapping: true,
+                extraKeys: {
+                    "F11": function(cm) {
+                    setFullScreen(cm, !isFullScreen(cm));
+                    },
+                    "Esc": function(cm) {
+                    if (isFullScreen(cm)) setFullScreen(cm, false);
+                    }
+                }
+            });
+            var delay;
+            editor.on("change", function() {
+                clearTimeout(delay);
+                delay = setTimeout(updatePreview, 500);
+            });
+      
+            function updatePreview() {
+                var previewFrame = document.getElementById('template-preview');
+                var preview =  previewFrame.contentDocument ||  previewFrame.contentWindow.document;
+                preview.open();
+                preview.write(editor.getValue());
+                preview.close();
+            }
+            setTimeout(updatePreview, 500);
+            var selected_theme = $.cookie('mdtpltheme') || 'default';
+            $('#select-theme').val(selected_theme);
+
+            editor.setOption('theme', selected_theme);
+            function selectTheme() {
+                var theme = $('#select-theme').val();
+                editor.setOption("theme", theme);
+                $.cookie('mdtpltheme', theme);
+            }
+            $('#enter-live-preview').hide();
+            $('#quit-live-preview').hide();
+            $('#quit-fullscreen').hide();
+            $('#enter-fullscreen').click(function(event) {
+                setFullScreen(editor, true);
+                event.preventDefault();
+            });
+
+            $('#quit-fullscreen').click(function(event) {
+                setFullScreen(editor, false);
+                $('#enter-live-preview').hide();
+                $('#quit-live-preview').hide();
+                event.preventDefault();
+            });
+            $('#enter-live-preview').click(function(event) {
+                $('#content').addClass('live-preview');
+                $('#enter-live-preview').hide();
+                $('#quit-live-preview').show();
+                event.preventDefault();
+            });
+            $('#quit-live-preview').click(function(event) {
+                $('#content').removeClass('live-preview');
+                $('#enter-live-preview').show();
+                $('#quit-live-preview').hide();
+                event.preventDefault();
+            });
+            $('#show-tab-html').addClass('btn-selected');
+            $('#show-tab-html').click(function(event) {
+                $('#tab-text').fadeOut('250');
+                $('#tab-html').fadeIn('250');
+                $('#tab-text').fadeOut('250');
+                $('#tab-html').fadeIn('250');
+                $('#show-tab-text').removeClass('btn-selected');
+                $('#show-tab-html').addClass('btn-selected');
+                event.preventDefault();
+            });
+
+            $('#show-tab-text').click(function(event) {
+                $('#tab-html').fadeOut('250');
+                $('#tab-text').fadeIn('250');
+                $('#tab-html').fadeOut('250');
+                $('#tab-text').fadeIn('250');
+                $('#show-tab-html').removeClass('btn-selected');
+                $('#show-tab-text').addClass('btn-selected');
+                event.preventDefault();
+            });
+            
+            $('#flash').prependTo($('#content'));
+            $('#send-test-form').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 400
+            });
+
+            $('#send-test-cancel').click(function() {
+                $('#send-test-form').dialog('close');
+                return false;
+            });
+
+            $('#spam-filter-form').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 520
+            });
+
+            $('#spam-filter-upgrade').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 400
+            });
+
+            $('#spam-filter-cancel').click(function() {
+                $('#spam-filter-form').dialog('close');
+                return false;
+            });
+
+            $('#spam-filter-report').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 600
+            });
+
+            $('#screenshot-test-form').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 520
+            });
+
+            $('#screenshot-test-upgrade').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                width: 400
+            });
+
+            $('#screenshot-test-cancel').click(function() {
+                $('#screenshot-test-form').dialog('close');
+                return false;
+            });
+
+            $('#select-theme').change(selectTheme);
+            $("#template-labels").tagit({fieldName: 'tags[]', availableTags: [], tagLimit: 10});
+        });
+    </script>
+</head>
+<body class="row no-sidebar">
+        <div class="page-wrap">
+        		<header role="banner">
+            <div class="row overflow">
+                <a href="/" id="logo" class="pull-left"><h1 class="imgrpl">Mandrill</h1></a>
+				<nav role="navigation" class="overflow pull-left main-nav">
+					<ul class="linear-list above0 below0 overflow">
+                        <li><a href="/" class="">Dashboard</a></li>
+                        <li>
+                            <ul class="hover-list">
+                                <li>
+                                    <a href="/reports" class="">Reports <span class="dwn">▼</span></a>
+                                    <ul>
+                                        <li><a href="/reports/compare" class="">Compare Stats</a></li>
+                                        <li><a href="/reports/demographics" class="">Demographics</a></li>
+                                        <li><a href="/reports/urls" class="">URL Tracking</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <ul class="hover-list">
+                                <li>
+                                    <a href="/activity" class="current ">Outbound <span class="dwn">▼</span></a>
+                                    <ul>
+                                        <li><a href="/activity" class="">Activity</a></li>
+                                        <li><a href="/tags" class="">Tags</a></li>
+                                        <li><a href="/templates" class="current">Templates</a></li>
+                                        <li><a href="/rules" class="">Rules</a></li>
+                                        <li><a href="/split-test" class="">Split Tests</a></li>
+                                        <li><a href="/url-patterns" class="">URL Patterns</a></li>
+                                        <li><a href="/subaccounts" class="">Subaccounts</a></li>
+                                        <li><a href="/compose" class="">Compose Message</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <ul class="hover-list">
+                                <li>
+                                    <a href="/inbound" class="">Inbound <span class="dwn">▼</span></a>
+                                    <ul>
+                                        <li><a href="/inbound" class="">Domains</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+					</ul>
+				</nav>                <nav role="navigation" class="overflow pull-right account-settings">
+                    <ul class="linear-list above0 below0 overflow">
+                        <li>
+                            <ul class="hover-list">
+                                <li>
+                                    <a href="/account/contact" class="" onclick=" return md.checkSudoSession(this.href);">dominique.van.roon@gmail.com <span class="dwn">▼</span></a>
+                                    <ul>
+                                        <li><a href="/account" class=" ">Account Details</a></li>
+                                        <li><a href="/account/contact" class="" onclick=" return md.checkSudoSession(this.href);">Username &amp; Contact Information</a></li>
+                                                                                                                                                                <li><a href="/account/billing/add-ons" class="" onclick=" return md.checkSudoSession(this.href);">Add Ons</a></li>                                        <li><a href="/account/close" class="" onclick=" return md.checkSudoSession(this.href);">Close My Account</a></li>                                        <li><a href="/account/test-mode" class="acct-switch">Turn on test mode</a></li>
+                                        <li></li>
+                                        <li><a href="/login/out" class="logout">Log out</a></li>                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <ul class="hover-list">
+                                <li>
+                                    <a href="/settings/index" class="" onclick=" return md.checkSudoSession(this.href);"><span class="settings">Settings</span> <span class="dwn">▼</span></a>
+                                    <ul>
+                                        <li><a href="/settings/index" class="" onclick=" return md.checkSudoSession(this.href);">SMTP &amp; API Credentials</a></li>
+                                        <li><a href="/settings/sending-domains" class="">Sending Domains</a></li>
+                                        <li><a href="/settings/tracking-domains" class="">Tracking &amp; Return Path Domains</a></li>
+                                        <li><a href="/settings/sending-options" class="">Sending Options</a></li>
+                                        <li><a href="/settings/alerts" class="">Alerts</a></li>
+                                        <li><a href="/settings/rejections" class="">Rejection Blacklist</a></li>
+                                        <li><a href="/settings/whitelist" class="">Rejection Whitelist</a></li>
+                                        <li><a href="/settings/applications" class="">Applications</a></li>
+                                        <li><a href="/settings/api" class="">API Logs</a></li>
+                                        <li><a href="/settings/webhooks" class="">Webhooks</a></li>
+                                        <li><a href="/settings/custom-metadata" class="">Custom Metadata</a></li>
+                                        <li><a href="/settings/exports" class="">Exports</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>	        </div>
+        </header>
+        <div id="flash">
+                                    
+        </div>
+        <section id="content" role="main" class="clear">
+    <form action="/templates/publish" method="POST">
+        <div class="template-header row border-bottom below30">
+            <div class="span8">
+                <h2>C-EPS Calculator Isolatieberekening</h2>
+            </div>
+            <div class="span4 alignr">
+                <div class="above30 header-buttons">
+                    <a href="#" class="btn" onclick="saveDraft(); return false;">Save Draft</a>
+                    <a href="/templates/revert-published?id=c-eps-calculator-isolatieberekening" class="btn">Revert to Published</a>                    <input type="submit" value="Publish" class="btn btn-primary">
+                </div>
+            </div>
+        </div>
+        <div class="row below30">
+            <div class="span5">
+                <input type="hidden" name="id" class="av-hidden" value="c-eps-calculator-isolatieberekening" id="id">
+                <fieldset>
+                    <h5 class="above0 below0">Template Info</h5>
+                    <div class="field-wrapper">
+                        <label for="template-name" class="">Name</label>
+                        <input type="text" name="name" id="template-name" class=" av-text" value="C-EPS Calculator Isolatieberekening">                    </div>
+                    <div class="field-wrapper">
+                        <label for="template-slug" class="">Template Slug</label>
+                        <input type="text" name="slug" id="template-slug" readonly class=" av-text" value="c-eps-calculator-isolatieberekening">                        <div class="field-help always-show">Use to identify this template in the API or via SMTP headers</div>
+                    </div>
+                    <div class="field-wrapper template-labels">
+                        <label class="stacked">Template Labels</label>
+                        <ul id="template-labels" class="above0 below0">
+                                                    </ul>
+                        <div class="field-help always-show">Labels are used as a filter on the templates index page. Separate multiple labels with a space or comma.</div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <h5 class="below0">Template Defaults</h5>
+                    <div class="field-wrapper">
+                        <label for="">From Address</label>
+                        <input type="text" name="data[from_email]" id="from_email" class=" av-text" value="info@vanwylick.com">                    </div>
+                    <div class="field-wrapper">
+                        <label for="">From Name</label>
+                        <input type="text" name="data[from_name]" id="from_name" class=" av-text" value="Van Wylick Isolerende Daken">                    </div>
+                    <div class="field-wrapper">
+                        <label for="">Subject</label>
+                        <input type="text" name="data[subject]" id="subject" class=" av-text" value="C-EPS Calculator Isolatieberekening | Van Wylick Isolerende Daken">                    </div>
+                </fieldset>
+
+                
+                
+            </div>
+            <div class="span7 template-code">
+                <div class="pull-right alignr">
+                    <ul class="hover-list above0">
+                        <li><a class="btn pull-right" href="#">Preview and Test <span class="dwn">▼</span></a>
+                            <ul class="above0 alignl">
+                                <li><a href="/templates/preview?id=c-eps-calculator-isolatieberekening" class="" onclick="saveDraft(function(a){md.popup(a.href);}, this); return false;">Preview</a></li>
+                                <li><a href="#" class="" onclick="sendTest(); return false;">Send Test</a></li>
+                                <li><a href="#" class="" onclick="showSpamUpgrade(); return false;">Spam Filter Test</a></li>                                <li><a href="#" class="" onclick="showScreenshotUpgrade(); return false;">Screenshot Test</a></li>                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="linear-list button-nav above0 below30">
+                    <li><button href="#tab-html" id="show-tab-html" class="btn">HTML</button></li>
+                    <li><button href="#tab-text" id="show-tab-text" class="btn">Text</button></li>
+                </ul>
+                <div class="tab-container" style="top:0; height:600px;">
+                    <div id="tab-html" class="tab-content">
+                        <fieldset>
+                            <div class="codemirror-header alignr">
+                                <label class="inline above0 below0">Select theme: </label>
+                                <select id="select-theme">
+                                    <option selected>default</option>
+                                    <option>ambiance</option>
+                                    <option>blackboard</option>
+                                    <option>cobalt</option>
+                                    <option>eclipse</option>
+                                    <option>elegant</option>
+                                    <option>erlang-dark</option>
+                                    <option>lesser-dark</option>
+                                    <option>mandrill</option>
+                                    <option>midnight</option>
+                                    <option>monokai</option>
+                                    <option>neat</option>
+                                    <option>night</option>
+                                    <option>rubyblue</option>
+                                    <option>solarized dark</option>
+                                    <option>solarized light</option>
+                                    <option>twilight</option>
+                                    <option>vibrant-ink</option>
+                                    <option>xq-dark</option>
+                                    <option>xq-light</option>
+                                </select>
+                                <a href="#" id="enter-live-preview" class="btn btn-icon"><span>enter live preview</span></a><a href="#" id="quit-live-preview" class="btn btn-icon active"><span>exit live preview</span></a>
+                                <a href="#" id="enter-fullscreen" class="btn btn-icon"><span>enter fullscreen</span></a><a href="#" id="quit-fullscreen" class="btn btn-icon"><span>exit fullscreen</span></a>
+                            </div>
+                            <textarea name="data[html]" id="html" class="">&lt;style&gt;
+    body, table {
+        color: #333;
+        font-family: TrebuchetMS, Helvetica;
+        font-size:13px;
+        background:#fff;
+    }
+    table {
+        margin-bottom:2rem;
+    }
+    h3 {
+        margin: 0.4em 0 0.6em 0;
+    }
+    sub, sup {
+        font-size:0.6em;
+        padding-left:2px
+    }
+    td, th {
+        border:1px solid #eee;
+        padding: 5px 7px;
+        vertical-align: top;
+    }
+    th {
+        font-family: Arial;
+    }
+    .point {
+        text-align:center;
+    }
+    .result td, .result th {
+        width:15%;
+        height:80px;
+        vertical-align:middle;
+        font-size:1.4em;
+    }
+    
+&lt;/style&gt;
+
+Beste *|NAME|*,&lt;br/&gt;
+&lt;p&gt;
+Bedankt voor het gebruik onze C-EPS Calculator. Hieronder vindt u de waardes waarmee de berekening is uitgevoerd en het resultaat. 
+&lt;/p&gt;
+
+&lt;h3&gt;Invoer Diktes voor de 4 Punten&lt;/h3&gt;
+&lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; style=&quot;border-collapse:collapse;width:90%;&quot;&gt;
+&lt;tbody&gt;
+    &lt;tr&gt;
+        &lt;th style=&quot;text-align:left;&quot;&gt;Punt&lt;/th&gt;
+        &lt;th style=&quot;text-align:left;&quot;&gt;Omschrijving&lt;/th&gt;
+        &lt;th style=&quot;text-align:left;&quot;&gt;Dikte (mm)&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;point&quot;&gt;A&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+        &lt;td&gt;Dikte C-EPS systeem bij de hoge rug in de gootbaan&lt;/td&gt;
+        &lt;td&gt;*|A_HEIGHT|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;point&quot;&gt;A&lt;sub&gt;2&lt;/sub&gt;&lt;/td&gt;
+        &lt;td&gt;Dikte C-EPS systeem bij de hoge rug recht tegenover de hemelwaterafvoer&lt;/td&gt;
+        &lt;td&gt;*|AA_HEIGHT|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;point&quot;&gt;B&lt;/td&gt;
+        &lt;td&gt;Dikte C-EPS systeem bij de hemelwaterafvoer&lt;/td&gt;
+        &lt;td&gt;*|B_HEIGHT|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;point&quot;&gt;C&lt;/td&gt;
+        &lt;td&gt;Dikte C-EPS systeem bij de hoge rug, diagonaal van de hemelwaterafvoer&lt;/td&gt;
+        &lt;td&gt;*|C_HEIGHT|*&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/tbody&gt;    
+&lt;/table&gt;
+
+&lt;h3&gt;Materiaalkeuze &amp;amp; Afwerking&lt;/h3&gt;
+&lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; style=&quot;border-collapse:collapse;width:90%;&quot;&gt;
+&lt;tbody&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Type Isolatie&lt;/td&gt;
+        &lt;td&gt;*|MATERIAL_NAME|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Afmeting Isolatie (lxb inmm)&lt;/td&gt;
+        &lt;td&gt;*|MATERIAL_DIMENSION_LENGTH|* x *|MATERIAL_DIMENSION_WIDTH|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Lambda Isolatie&lt;/td&gt;
+        &lt;td&gt;*|MATERIAL_LAMBDA|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Gem. Afmeting Naden (mm)&lt;/td&gt;
+        &lt;td&gt;*|SEAM_WIDTH|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Dikte Betopor&lt;sup&gt;&amp;reg;&lt;/sup&gt; (mm)&lt;/td&gt;
+        &lt;td&gt;*|BETORPOR_HEIGHT|*&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;Lambda Betopor&lt;sup&gt;&amp;reg;&lt;/sup&gt;&lt;/td&gt;
+        &lt;td&gt;*|BETOPOR_LAMBDA|*&lt;/td&gt;
+    &lt;/tr&gt;
+
+
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3&gt;Berekende Resultaat&lt;/h3&gt;
+&lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; style=&quot;border-collapse:collapse;width:90%;&quot; class=&quot;result&quot;&gt;
+&lt;tbody&gt;
+    &lt;tr&gt;
+        &lt;th&gt;R&lt;sub&gt;m&lt;/sub&gt;&lt;/th&gt;
+    	&lt;td&gt;*|RESULT_RM|*&lt;/td&gt;
+    	&lt;th&gt;&amp;lambda;&lt;/th&gt;
+    	&lt;td&gt;*|RESULT_LAMBDA|*&lt;/td&gt;
+    	&lt;th&gt;Gem. Dikte&lt;/th&gt;
+    	&lt;td&gt;*|RESULT_HEIGHT_AVG|*&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+Het resultaat van onze C-EPS Calculator is een indicatieve berekening. Mocht u een exacte berekening willen laten uitvoeren of indien u een offerte wilt voor het isoleren van uw dak, neem dan gerust contact met ons op. Onze specialisten helpen u graag verder.
+&lt;/p&gt;
+&lt;p&gt;
+    Met Vriendelijke Groet,&lt;br/&gt;
+
+    &lt;br/&gt;
+    VanWylick Isolerende Daken&lt;br/&gt;
+    E: &lt;a href=&quot;mailto:info@vanwylick.com&quot;&gt;info@vanwylick.com&lt;/a&gt;&lt;br/&gt;
+    T: 0413 - 294755&lt;br/&gt;
+&lt;/p&gt;</textarea>                            <div id="live-preview" style="display:none;">
+                                <iframe id="template-preview" height="100%" width="100%"></iframe>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="tab-text" class="tab-content" style="display:none">
+                        <fieldset>
+                            <textarea name="data[text]" id="text" style="font-weight: normal; color: black;" class="">Text volgt nog</textarea>                        </fieldset>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+
+    <div id="send-test-form" title="Send Test Email">
+        <form action="/templates/send-test" onsubmit="sendTestPost(); return false;" method="POST">
+            <input type="hidden" name="id" class="av-hidden" value="c-eps-calculator-isolatieberekening" id="id">
+            <fieldset>
+                <div>
+                    <label for="test_email" class="stacked">Send test to</label>
+                    <input type="text" name="test_email" id="test_email" class="av-text">
+                    <span class="field-help always-show">Separate email addresses with commas to send to multiple accounts at once. <br><em>Test emails will be billed and tracked just like all other emails.</em></span>
+                </div>
+
+                <div class="clear above-below15 below0">
+                    <input type="submit" value="Send Test" class="btn btn-primary">
+                    <button id="send-test-cancel" class="btn btn-cancel">Cancel</button>
+                </div>
+            </fieldset>
+        <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+    </div>
+
+    <div id="spam-filter-form" title="Spam Filter Test">
+        <form action="/templates/spam-test" method="POST">
+            <input type="hidden" name="id" class="av-hidden" value="c-eps-calculator-isolatieberekening" id="id">
+            <fieldset>
+                <div>
+                    <p class="below0">Spam filter tests run your template content against the following major spam filters:</p>
+                    <div class="row spam-filter-list">
+                        <ul class="span6">
+                            <li class="above0 below0">SpamAssassin</li>
+                            <li class="above0 below0">Outlook</li>
+                            <li class="above0 below0">Gmail</li>
+                            <li class="above0 below0">Yahoo! Mail</li>
+                            <li class="above0 below0">AOL Mail</li>
+                            <li class="above0 below0">GMX</li>
+                        </ul>
+                        <ul class="span6">
+                            <li class="above0 below0">Mail.com</li>
+                            <li class="above0 below0">Link and image verification</li>
+                            <li class="above0 below0">MessageLabs</li>
+                            <li class="above0 below0">Postini</li>
+                            <li class="above0 below0">Barracuda</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>This spam filter test will reduce your balance by $1 to $0.00. Do you want to pay $1 to send this test?</strong></p>
+                                <div class="clear">
+                    <input type="submit" value="Yes, Send Test" class="btn btn-primary">
+                    <button id="spam-filter-cancel" class="btn btn-cancel">Cancel</button>
+                </div>
+            </fieldset>
+        <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+    </div>
+
+    <div id="spam-filter-upgrade" title="Upgrade Your Mandrill Account">
+        <p>Spam filter testing will check your template in 10 common spam filters for just $1 per test, powered by <a href="http://litmus.com" target="_blank">Litmus</a>.</p>
+        <p><a href="/account/billing/add-funds" class="btn btn-primary" onclick=" return md.checkSudoSession(this.href);">Add funds to your account</a></p>
+    </div>
+
+    <div id="spam-filter-report" title="Spam Filter Test" style="max-height:500px;">
+    </div>
+
+    <div id="screenshot-test-form" title="Screenshot Test">
+        <form action="/templates/screenshot-test" method="POST">
+            <input type="hidden" name="id" class="av-hidden" value="c-eps-calculator-isolatieberekening" id="id">
+            <fieldset>
+                <p>Screenshot testing will check your template against a combination of 30 email clients/browsers for just $3 per test, powered by <a href="http://litmus.com" target="_blank">Litmus</a>.</p>
+                <p><strong>This screenshot test will reduce your balance by $3 to $0.00. Do you want to pay $3 to send this test?</strong></p>
+                                <div class="clear">
+                    <input type="submit" value="Yes, Send Test" class="btn btn-primary">
+                    <button id="screenshot-test-cancel" class="btn btn-cancel">Cancel</button>
+                </div>
+            </fieldset>
+        <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+    </div>
+
+    <div id="screenshot-test-upgrade" title="Upgrade Your Mandrill Account">
+        <p>Screenshot testing will check your template against a combination of 30 email clients/browsers for just $3 per test, powered by <a href="http://litmus.com" target="_blank">Litmus</a>.</p>
+        <p><a href="/account/billing/add-funds" class="btn btn-primary" onclick=" return md.checkSudoSession(this.href);">Add funds to your account</a></p>
+    </div>
+</section>
+    </div>
+	<footer class="row">
+        <div id="footer-left">
+            <a href="#" id="support" class="btn btn-small">Support</a>
+            <p class="copyright-notice">&copy; 2012-2014 All rights reserved <span class="up">▼</span></p>
+        </div>
+        <div id="footer-inner">
+            <div class="row">
+                <div class="span4 pull-left">
+                    <ul class="linear-list above0 below0">
+                        <li><a href="http://mandrillapp.com/api/docs/index.html" target="_blank">API Docs</a></li>
+                        <li><a href="http://help.mandrill.com/categories/20090941-SMTP-Integration" target="_blank">SMTP Docs</a></li>
+                        <li><a href="http://status.mandrillapp.com" target="_blank">Service Status</a></li>
+                    </ul>
+                </div>
+                <div class="span8 pull-left">
+                    <ul class="linear-list above0 below0 pull-right">
+                        <li><a href="http://mandrill.com/privacy/" target="_blank">Privacy Policy</a></li>
+                        <li><a href="http://mandrill.com/privacy/" target="_blank">Terms of Use</a></li>
+                        <li><p role="contentinfo" class="trademark">Mandrill<sup>&reg;</sup> is a registered trademark of <a href="http://rocketsciencegroup.com/" target="_blank">The Rocket Science Group</a>.</p></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	</footer>
+    <div id="sudo-dialog" title="Verify Password">
+        <p>Some pages are a bit more secure and have shorter session timeouts. Verify your password to continue on.</p>
+        <form id="sudo-dialog-form" action="/sudo/post" class="fatform" name="sudosubform" method="POST">
+            <input type="hidden" name="referrer" id="sudo-referrer" class="av-hidden">
+            <fieldset>
+                <div>
+                    <label for="sudo-password" class="stacked above0">Password</label>
+                    <input type="password" name="password" id="sudo-password" class="av-password">
+                </div>
+            </fieldset>
+            <input type="submit" value="Verify Password" class="btn btn-primary">
+        <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+    </div>
+    <div id="support-dialog" title="Support">
+            <div id="ticket-search-wrapper" class="above-below15 above0">
+                                <div id="help-categories">
+                    <h5>What would you like help with?</h5>
+                    <ul class="row above0">
+                        <li class="span4 above0"><a href="#" id="helplink-cat1" class="btn panel-block track-support-click" data-click-type="section">Getting Started<br>with Mandrill</a></li>
+                        <li class="span4 above0"><a href="#" id="helplink-cat2" class="btn panel-block track-support-click" data-click-type="section">Reputation<br>&amp; Quota</a></li>
+                        <li class="span4 above0"><a href="#" id="helplink-cat3" class="btn panel-block track-support-click" data-click-type="section">Deliverability<br>Questions</a></li>
+                    </ul>
+                </div>
+                <form class="table-search above0" method="POST">
+                    <h5 av:else>or do you have a question about something else?</h5>
+                    <div class="searchform">
+                        <input id="support-query" type="text" placeholder="Type a question or keyword" class="searchinput av-text">
+                        <input id="support-search" type="submit" class="search button" value="search">
+                    </div>
+                <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+                <div class="clear"></div>
+
+                <div id="ticket-searching" style="display:none;">Searching...</div>
+                <div id="ticket-search-results" class="above0 below15">
+                </div>
+
+                <p class="show-ticket-form-wrapper" style="display:none;"><strong>Not what you're looking for? <a href="#" class="show-ticket-form">Submit a support request</a>.</strong></p>
+            </div>
+
+            <div id="help-cat1" class="help-cat-block" style="display:none;">
+                <a href="#" class="help-cat-back">&laquo; Back to support overview</a>
+                <h4>Getting Started with Mandrill</h4>
+                <h5 class="above0"><a href="http://help.mandrill.com/entries/22242948-What-is-Mandrill-" target="_blank" class="track-support-click" data-click-type="article">What is Mandrill?</a></h5>
+                <p>Mandrill is designed to help applications or websites that need to send transactional email like password resets, order confirmations, and welcome messages. Technically, though, you can send any legal, non-spam emails through Mandrill.</p>
+
+                <h5><a href="http://help.mandrill.com/entries/21650603-How-do-I-get-started-with-Mandrill-" target="_blank" class="track-support-click" data-click-type="article">How do I get started with Mandrill?</a></h5>
+                <p>Ready to send email through Mandrill? Start here to make sure you're ready to go. == Create a Mandrill Account == To get started, you'll want to create a new Mandrill account here: http://mandrill…</p>
+
+                <h5><a href="http://help.mandrill.com/entries/25252978-Tips-for-using-images-in-Mandrill-emails" target="_blank" class="track-support-click" data-click-type="article">Tips for using images in Mandrill emails.</a></h5>
+                <p>Mandrill doesn't store images for you, but there are a few ways to include them in your emails. Below are some tips to help you get started. - Upload images to a publicly-accessible server or a r…</p>
+
+                <h5><a href="http://mandrillapp.com/docs/" target="_blank" class="track-support-click" data-click-type="article">Mandrill documentation</a></h5>
+                <p class="show-ticket-form-wrapper above-below15 below0"><strong>Not what you're looking for? <a href="#" class="show-ticket-form">Submit a support request</a>.</strong></p>
+            </div>
+
+            <div id="help-cat2" class="help-cat-block" style="display:none;">
+                <a href="#" class="help-cat-back">&laquo; Back to support overview</a>
+                <h4>Reputation &amp; Quota</h4>
+                <div id="support-dialog-reputation"></div>
+
+                <h5><a href="http://help.mandrill.com/entries/22038718-How-does-the-account-reputation-and-hourly-quota-system-work-" target="_blank" class="track-support-click" data-click-type="article">How does the reputation system work?</a></h5>
+                <p>Every Mandrill account has an hourly send quota based on account reputation and typical sending volume. It's part of how we protect our users and our system from spammers that send out a lot of email real...</p>
+
+                <h5><a href="http://help.mandrill.com/entries/23586816-How-quickly-will-my-hourly-quota-increase-" target="_blank" class="track-support-click" data-click-type="article">How quickly will my hourly quota increase?</a></h5>
+                <p>The hourly quota is designed to scale quickly if you need to send higher volumes. Each time you send to a higher volume, though, there will be a period of adjustment as Mandrill learns about the new...</p>
+
+                <h5><a href="http://help.mandrill.com/entries/23570162-Can-you-manually-increase-my-quota-" target="_blank" class="track-support-click" data-click-type="article">Can you manually increase my quota?</a></h5>
+                <p>Account reputation and the hourly sending quota are handled automatically as you send email and Mandrill learns about the emails you're sending. If you have questions about your sending quota or need assist...</p>
+
+                <p class="show-ticket-form-wrapper above-below15 below0"><strong>Not what you're looking for? <a href="#" class="show-ticket-form">Submit a support request</a>.</strong></p>
+            </div>
+
+            <div id="help-cat3" class="help-cat-block" style="display:none;">
+                <a href="#" class="help-cat-back">&laquo; Back to support overview</a>
+                <h4>Deliverability Questions</h4>
+
+                <h5><a href="http://help.mandrill.com/entries/25076866-Can-I-view-the-SMTP-response-for-sent-emails-" target="_blank" class="track-support-click" data-click-type="article">Can I tell if my email was actually delivered?</a></h5>
+                <p>Yes. When Mandrill sends an email, the recipient's mail server provides a response when the message is accepted for delivery, when it bounces, or when it can't be delivered for any reason...</p>
+
+                <h5><a href="http://help.mandrill.com/entries/23317558-Why-are-my-emails-going-into-recipients-spam-folders-" target="_blank" class="track-support-click" data-click-type="article">Why are my emails going into recipients' spam folders?</a></h5>
+                <p>Every recipient server is different and may apply different spam filtering criteria for the messages being received. In most cases, recipient servers don't provide any information about spam fil...</p>
+
+                <h5><a href="http://help.mandrill.com/entries/22880521-What-is-a-rejected-email-Rejection-Blacklist-" target="_blank" class="track-support-click" data-click-type="article">What is a rejected email?</a></h5>
+                <p>Recipient email addresses are added to the Rejection Blacklist when one of the following events occurs: The recipient address bounces, The recipient address registers a spam complaint...</p>
+
+                <p class="show-ticket-form-wrapper above-below15 below0"><strong>Not what you're looking for? <a href="#" class="show-ticket-form">Submit a support request</a>.</strong></p>
+            </div>
+
+            <div id="ticket-details" style="display:none;">
+                <form id="support-form" action="/support/new-ticket" class="fatform" method="POST">
+                    <fieldset>
+                        <div class="field-wrapper">
+                            <label class="stacked" for="name">Name</label>
+                            <input type="text" name="name" id="ticket-name" placeholder="Enter your name" class="av-text">                                                    </div>
+                        <div class="field-wrapper">
+                            <label class="stacked" for="email">Send replies to</label>
+                                                        <input type="text" name="email" id="ticket-email" placeholder="Enter your email address" value="dominique.van.roon@gmail.com" class="av-text">                        </div>
+                        <div class="field-wrapper">
+                            <label class="stacked " for="subject">Subject</label>
+                            <input type="text" name="subject" id="ticket-subject" class="av-text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label class="stacked" for="body">Comments</label>
+                            <textarea name="body" id="ticket-body" placeholder="Please include as many details as possible (including recipients if you have a question about email delivery) so that we can get back to you as quickly as possible."></textarea>
+                        </div>
+                    </fieldset>
+
+                    <div class="clear"></div>
+                    <input id="ticket-submit" type="submit" value="Submit" class="btn btn-primary">
+                    <button class="btn btn-cancel" id="hide-ticket-form">Cancel</button>
+                <input type="hidden" name="__csrf_token" value="2bda6d80258a2a66722fd0bda15c052d20a17878" class="av-hidden" id="__csrf_token"></form>
+            </div>
+        
+    </div>
+    </body>
+</html>
